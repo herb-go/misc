@@ -5,16 +5,23 @@ import (
 	"time"
 )
 
+//Debounce debounce struct
 type Debounce struct {
-	Duration    time.Duration
+	//Duration debounce duration
+	Duration time.Duration
+	//MaxDuration max lifetime debouce can live.
 	MaxDuration time.Duration
-	Leading     bool
-	lock        sync.Mutex
-	deadline    time.Time
-	timer       *time.Timer
-	Callback    func()
+	//Leading if the callback should be called before the duration
+	Leading  bool
+	lock     sync.Mutex
+	deadline time.Time
+	timer    *time.Timer
+	//Callback function
+	Callback func()
 }
 
+//Exec call callback func.
+//Return if the callback is executed immediately
 func (d *Debounce) Exec() bool {
 	d.lock.Lock()
 	defer d.lock.Unlock()
@@ -53,6 +60,8 @@ func (d *Debounce) Exec() bool {
 	}
 	return false
 }
+
+//New create new debounce with given duration and callback
 func New(duration time.Duration, callback func()) *Debounce {
 	d := &Debounce{}
 	d.Duration = duration
