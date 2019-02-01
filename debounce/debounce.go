@@ -29,11 +29,15 @@ func (d *Debounce) Exec() bool {
 	d.lock.Lock()
 	defer d.lock.Unlock()
 	var success = false
+	var duration time.Duration
 	if d.timer != nil {
-
-		now := time.Now()
-		duration := d.deadline.Sub(now)
-		if duration > d.Duration {
+		if !d.deadline.IsZero() {
+			now := time.Now()
+			duration = d.deadline.Sub(now)
+			if duration > d.Duration {
+				duration = d.Duration
+			}
+		} else {
 			duration = d.Duration
 		}
 		success = d.timer.Reset(duration)
@@ -42,7 +46,11 @@ func (d *Debounce) Exec() bool {
 		return false
 	}
 	d.timer = time.NewTimer(d.Duration)
-	d.deadline = time.Now().Add(d.MaxDuration)
+	if d.MaxDuration > 0 {
+		d.deadline = time.Now().Add(d.MaxDuration)
+	} else {
+		d.deadline = time.Time{}
+	}
 	go func() {
 		if d.Leading {
 			d.Callback()

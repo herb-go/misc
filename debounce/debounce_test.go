@@ -180,3 +180,77 @@ func TestDebounceLeading(t *testing.T) {
 		t.Fatal(value)
 	}
 }
+
+func TestDebounceNoMax(t *testing.T) {
+	var value = 1
+	var add = func() {
+		value++
+	}
+	var result bool
+	var testDuration = time.Millisecond
+	var TestDebounce = New(2*testDuration, add)
+	TestDebounce.MaxDuration = 0
+
+	result = TestDebounce.Exec()
+	if result {
+		t.Fatal(result)
+	}
+	time.Sleep(testDuration)
+
+	if value != 1 {
+		t.Fatal(value)
+	}
+	for i := 0; i < 10; i++ {
+		if i != 0 {
+			time.Sleep(testDuration)
+		}
+		result = TestDebounce.Exec()
+		if result {
+			t.Fatal(result)
+		}
+	}
+	if value != 1 {
+		t.Fatal(value)
+	}
+	time.Sleep(3 * testDuration)
+	if value != 2 {
+		t.Fatal(value)
+	}
+}
+
+func TestDebounceLeadingNoMax(t *testing.T) {
+	var value = 1
+	var add = func() {
+		value++
+	}
+	var result bool
+	var testDuration = time.Millisecond
+	var TestDebounce = New(2*testDuration, add)
+	TestDebounce.MaxDuration = 0
+	TestDebounce.Leading = true
+
+	result = TestDebounce.Exec()
+	if !result {
+		t.Fatal(result)
+	}
+	time.Sleep(testDuration)
+	if value != 2 {
+		t.Fatal(value)
+	}
+	for i := 0; i < 10; i++ {
+		if i != 0 {
+			time.Sleep(testDuration)
+		}
+		result = TestDebounce.Exec()
+		if result {
+			t.Fatal(result)
+		}
+	}
+	if value != 2 {
+		t.Fatal(value)
+	}
+	time.Sleep(3 * testDuration)
+	if value != 2 {
+		t.Fatal(value)
+	}
+}
