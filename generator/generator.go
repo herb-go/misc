@@ -20,6 +20,8 @@ func (g BytesGenerator) Generate() ([]byte, error) {
 	return buf, nil
 }
 
+var AlphanumericList = []byte("0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz")
+
 type ListGenerator struct {
 	List []byte
 	Min  int
