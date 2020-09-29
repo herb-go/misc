@@ -68,6 +68,25 @@ func (d *Debounce) Exec() bool {
 
 }
 
+//WithLeading update debounce with given leading.
+//Return debounce self.
+func (d *Debounce) WithLeading(l bool) *Debounce {
+	d.Leading = l
+	return d
+}
+
+//WithMaxDuration update debounce with given max duration.
+//Return debounce self.
+func (d *Debounce) WithMaxDuration(duration time.Duration) *Debounce {
+	d.MaxDuration = duration
+	return d
+}
+
+//ExecFunc exec debounce
+func (d *Debounce) ExecFunc() {
+	d.Exec()
+}
+
 //New create new debounce with given duration and callback
 func New(duration time.Duration, callback func()) *Debounce {
 	d := &Debounce{}

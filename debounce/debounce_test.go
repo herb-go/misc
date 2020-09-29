@@ -88,6 +88,10 @@ func TestDebounce(t *testing.T) {
 	if value != 4 {
 		t.Fatal(value)
 	}
+	TestDebounce.ExecFunc()
+	if value != 4 {
+		t.Fatal(value)
+	}
 }
 
 func TestDebounceLeading(t *testing.T) {
@@ -253,4 +257,12 @@ func TestDebounceLeadingNoMax(t *testing.T) {
 	if value != 2 {
 		t.Fatal(value)
 	}
+}
+
+func TestWarp(t *testing.T) {
+	var TestDebounce = New(0, nil).WithLeading(true).WithMaxDuration(time.Hour)
+	if TestDebounce.Leading != true || TestDebounce.MaxDuration != time.Hour {
+		t.Fatal(TestDebounce)
+	}
+
 }
