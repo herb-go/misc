@@ -266,3 +266,18 @@ func TestWarp(t *testing.T) {
 	}
 
 }
+
+func BenchmarkDebounce(b *testing.B) {
+	d := New(time.Millisecond, func() {})
+	for i := 0; i < b.N; i++ {
+		d.Exec()
+	}
+}
+
+func BenchmarkDebounceLeading(b *testing.B) {
+	d := New(time.Millisecond, func() {})
+	d.Leading = true
+	for i := 0; i < b.N; i++ {
+		d.Exec()
+	}
+}

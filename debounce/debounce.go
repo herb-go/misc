@@ -23,6 +23,17 @@ type Debounce struct {
 	Callback func()
 }
 
+func (d *Debounce) getTimer() *time.Timer {
+	d.lock.Lock()
+	defer d.lock.Unlock()
+	return d.timer
+}
+func (d *Debounce) deleteTimer() {
+	d.lock.Lock()
+	defer d.lock.Unlock()
+	d.timer = nil
+}
+
 //Exec call callback func.
 //Return if the callback is executed immediately
 func (d *Debounce) Exec() bool {
@@ -55,10 +66,14 @@ func (d *Debounce) Exec() bool {
 		if d.Leading {
 			d.Callback()
 		}
-		<-d.timer.C
-		d.timer = nil
-		if !d.Leading {
-			d.Callback()
+		t := d.getTimer()
+		if t != nil {
+			<-t.C
+			d.deleteTimer()
+			if !d.Leading {
+				d.Callback()
+			}
+
 		}
 	}()
 	if d.Leading {
