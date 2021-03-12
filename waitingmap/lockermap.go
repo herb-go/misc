@@ -1,4 +1,4 @@
-package waiting
+package waitingmap
 
 import "sync"
 
