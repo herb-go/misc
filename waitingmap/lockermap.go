@@ -7,10 +7,6 @@ type lockerentity struct {
 	rwcount int64
 	sync.RWMutex
 }
-type LockerMap struct {
-	locker sync.Mutex
-	store  map[interface{}]*lockerentity
-}
 
 type locker struct {
 	m   *LockerMap
@@ -36,6 +32,12 @@ func (l *rlocker) Lock() {
 func (l *rlocker) Unlock() {
 	l.m.RUnlockInterface(l.key)
 }
+
+type LockerMap struct {
+	locker sync.Mutex
+	store  map[interface{}]*lockerentity
+}
+
 func (m *LockerMap) Lock(key string) {
 	m.LockInterface(key)
 }
