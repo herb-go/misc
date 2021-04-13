@@ -14,37 +14,61 @@ func TestLockerMap(t *testing.T) {
 	wg.Add(4)
 	go func() {
 		time.Sleep(0)
-		lm.Lock("test1")
+		newlock := lm.Lock("test1")
+		if !newlock {
+			panic(newlock)
+		}
 		result = append(result, "locktest1")
 		time.Sleep(2 * time.Millisecond)
-		lm.Unlock("test1")
+		free := lm.Unlock("test1")
+		if free {
+			panic(free)
+		}
 		result = append(result, "unlocktest1")
 		wg.Done()
 	}()
 	go func() {
 		time.Sleep(2 * time.Millisecond)
-		lm.Lock("test1")
+		newlock := lm.Lock("test1")
+		if newlock {
+			panic(newlock)
+		}
 		result = append(result, "locktest1*")
 		time.Sleep(2 * time.Millisecond)
-		lm.Unlock("test1")
+		free := lm.Unlock("test1")
+		if !free {
+			panic(free)
+		}
 		result = append(result, "unlocktest1*")
 		wg.Done()
 	}()
 	go func() {
 		time.Sleep(time.Millisecond)
-		lm.Lock("test2")
+		newlock := lm.Lock("test2")
+		if !newlock {
+			panic(newlock)
+		}
 		result = append(result, "locktest2")
 		time.Sleep(3 * time.Millisecond)
-		lm.Unlock("test2")
+		free := lm.Unlock("test2")
+		if !free {
+			panic(free)
+		}
 		result = append(result, "unlocktest2")
 		wg.Done()
 	}()
 	go func() {
 		time.Sleep(1 * time.Millisecond)
-		lm.RLock("test1")
+		newlock := lm.RLock("test1")
+		if newlock {
+			panic(newlock)
+		}
 		result = append(result, "rlocktest1")
 		time.Sleep(4 * time.Millisecond)
-		lm.RUnlock("test1")
+		free := lm.RUnlock("test1")
+		if free {
+			panic(free)
+		}
 		result = append(result, "runlocktest1")
 		wg.Done()
 	}()
@@ -73,7 +97,7 @@ func TestLockerMapMethods(t *testing.T) {
 		l.Lock()
 		wg.Done()
 		if len(lm.store) != 1 {
-			t.Fatal()
+			panic("Err")
 		}
 		l.Unlock()
 	}()

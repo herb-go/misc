@@ -38,61 +38,72 @@ type LockerMap struct {
 	store  map[interface{}]*lockerentity
 }
 
-func (m *LockerMap) Lock(key string) {
-	m.LockInterface(key)
+func (m *LockerMap) Lock(key string) bool {
+	return m.LockInterface(key)
 }
-func (m *LockerMap) LockInterface(k interface{}) {
+func (m *LockerMap) LockInterface(k interface{}) bool {
+	var newlock bool
 	m.locker.Lock()
 	l := m.store[k]
 	if l == nil {
 		l = &lockerentity{}
 		m.store[k] = l
+		newlock = true
 	}
 	l.count++
 	m.locker.Unlock()
 	l.Lock()
+	return newlock
 }
-func (m *LockerMap) Unlock(key string) {
-	m.UnlockInterface(key)
+func (m *LockerMap) Unlock(key string) bool {
+	return m.UnlockInterface(key)
 }
-func (m *LockerMap) UnlockInterface(k interface{}) {
+func (m *LockerMap) UnlockInterface(k interface{}) bool {
+	var free bool
 	m.locker.Lock()
 	l := m.store[k]
 	l.count--
 	if l.count == 0 && l.rwcount == 0 {
 		delete(m.store, k)
+		free = true
 	}
 	m.locker.Unlock()
 	l.Unlock()
+	return free
 }
 
-func (m *LockerMap) RLock(key string) {
-	m.RLockInterface(key)
+func (m *LockerMap) RLock(key string) bool {
+	return m.RLockInterface(key)
 }
-func (m *LockerMap) RLockInterface(k interface{}) {
+func (m *LockerMap) RLockInterface(k interface{}) bool {
+	var newlock bool
 	m.locker.Lock()
 	l := m.store[k]
 	if l == nil {
 		l = &lockerentity{}
 		m.store[k] = l
+		newlock = true
 	}
 	l.rwcount++
 	m.locker.Unlock()
 	l.RLock()
-
+	return newlock
 }
-func (m *LockerMap) RUnlock(key string) {
-	m.RUnlockInterface(key)
+func (m *LockerMap) RUnlock(key string) bool {
+	return m.RUnlockInterface(key)
 }
-func (m *LockerMap) RUnlockInterface(k interface{}) {
+func (m *LockerMap) RUnlockInterface(k interface{}) bool {
+	var free bool
 	m.locker.Lock()
 	l := m.store[k]
 	l.rwcount--
 	if l.count == 0 && l.rwcount == 0 {
 		delete(m.store, k)
+		free = true
 	}
 	m.locker.Unlock()
 	l.RUnlock()
+	return free
 }
 
 func (m *LockerMap) Locker(key string) sync.Locker {
