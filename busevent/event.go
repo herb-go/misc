@@ -27,6 +27,6 @@ func (l *Event) Unbind(id interface{}) {
 		}
 	}
 }
-func NewEvent() *Event {
+func New() *Event {
 	return &Event{}
 }
