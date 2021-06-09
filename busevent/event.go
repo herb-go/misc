@@ -12,16 +12,16 @@ func (e *Event) Raise(data interface{}) {
 
 func (e *Event) Bind(l *Handler) {
 	for _, v := range *e {
-		if v.ID == l.ID {
+		if v.Key == l.Key {
 			v.Fn = l.Fn
 			return
 		}
 	}
 	*e = append(*e, l)
 }
-func (l *Event) Unbind(id interface{}) {
+func (l *Event) Unbind(key interface{}) {
 	for _, v := range *l {
-		if v.ID == id {
+		if v.Key == key {
 			v.Fn = nil
 			return
 		}
