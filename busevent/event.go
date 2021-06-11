@@ -1,32 +1,35 @@
 package busevent
 
-type Event []*Handler
+type Event []*Listener
 
 func (e *Event) Raise(data interface{}) {
 	for _, v := range *e {
-		if v.Fn != nil {
-			v.Fn(data)
-		}
+		v.Handler(data)
 	}
+}
+func (e *Event) Bind(handler func(data interface{})) {
+	*e = append(*e, NewListener().WithHandler(handler))
+}
+func (e *Event) BindAs(key interface{}, handler func(data interface{})) {
+	*e = append(*e, NewListener().WithKey(key).WithHandler(handler))
 }
 
-func (e *Event) Bind(l *Handler) {
+func (e *Event) Remove(key interface{}) {
+	if key == nil {
+		return
+	}
+	var result = Event{}
 	for _, v := range *e {
-		if v.Key == l.Key {
-			v.Fn = l.Fn
-			return
+		if v.Key != key {
+			result = append(result, v)
 		}
 	}
-	*e = append(*e, l)
+	*e = result
 }
-func (l *Event) Unbind(key interface{}) {
-	for _, v := range *l {
-		if v.Key == key {
-			v.Fn = nil
-			return
-		}
-	}
+func (e *Event) Flush() {
+	*e = nil
 }
+
 func New() *Event {
 	return &Event{}
 }
