@@ -172,3 +172,11 @@ func TestEqual(t *testing.T) {
 		t.Fatal()
 	}
 }
+
+func TestMatch(t *testing.T) {
+	var ok bool
+	ok = New("*").Match("")
+	if !ok {
+		t.Fatal(ok)
+	}
+}

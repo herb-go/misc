@@ -161,7 +161,10 @@ func (p *Pattern) Find(value string) (bool, []string) {
 	data := []rune(value)
 	return p.find(data, p.parts)
 }
-
+func (p *Pattern) Match(value string) bool {
+	ok, _ := p.Find(value)
+	return ok
+}
 func New(pattern string) *Pattern {
 	return Star.New(pattern)
 }
