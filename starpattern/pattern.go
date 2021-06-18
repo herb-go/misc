@@ -1,17 +1,20 @@
 package starpattern
 
+import "strings"
+
 type Options struct {
-	Wildcard  rune
-	Exception []rune
-	Avaliable []rune
-	NotEmpty  bool
+	Wildcard   rune
+	Exception  []rune
+	Avaliable  []rune
+	NotEmpty   bool
+	IgnoreCase bool
 }
 
 var Star = &Options{
 	Wildcard: '*',
 }
 
-func (o *Options) parseParts(pattern []rune) []*part {
+func (o *Options) parseParts(pattern string) []*part {
 	var result = []*part{}
 	var current = []rune{}
 	for _, v := range pattern {
@@ -33,8 +36,27 @@ func (o *Options) parseParts(pattern []rune) []*part {
 func (o *Options) New(pattern string) *Pattern {
 	return &Pattern{
 		options: o,
-		parts:   o.parseParts([]rune(pattern)),
+		parts:   o.parseParts(pattern),
 	}
+}
+
+func (o *Options) equalRunes(a []rune, b []rune) bool {
+	if len(a) != len(b) {
+		return false
+	}
+	for k := range a {
+		if !o.equal(a[k], b[k]) {
+			return false
+		}
+	}
+	return true
+}
+
+func (o *Options) equal(a rune, b rune) bool {
+	if o.IgnoreCase {
+		return strings.ToLower(string(a)) == strings.ToLower(string(b))
+	}
+	return a == b
 }
 
 type part struct {
@@ -50,18 +72,6 @@ func newPlainPart(value []rune) *part {
 	return &part{
 		value: value,
 	}
-}
-
-func equal(a []rune, b []rune) bool {
-	if len(a) != len(b) {
-		return false
-	}
-	for k := range a {
-		if a[k] != b[k] {
-			return false
-		}
-	}
-	return true
 }
 
 type Pattern struct {
@@ -82,12 +92,12 @@ func (p *Pattern) findplain(value []rune, parts []*part) (bool, []string) {
 	partvalue := parts[0].value
 	d := len(value) - len(partvalue)
 	if d == 0 {
-		if equal(value, parts[0].value) {
+		if p.options.equalRunes(value, parts[0].value) {
 			return p.find(value[len(value):], parts[1:])
 		}
 	} else if d > 0 {
 		if len(parts) > 1 {
-			if equal(value[:len(partvalue)], partvalue) {
+			if p.options.equalRunes(value[:len(partvalue)], partvalue) {
 				ok, found := p.find(value[len(partvalue):], parts[1:])
 				if ok {
 					return true, found
@@ -120,7 +130,7 @@ func (p *Pattern) findwildcard(value []rune, parts []*part) (bool, []string) {
 	for k := range value {
 		if len(p.options.Exception) > 0 {
 			for _, e := range p.options.Exception {
-				if e == value[k] {
+				if p.options.equal(e, value[k]) {
 					stop = true
 				}
 			}
@@ -128,7 +138,7 @@ func (p *Pattern) findwildcard(value []rune, parts []*part) (bool, []string) {
 		if !stop && len(p.options.Avaliable) > 0 {
 			var ok bool
 			for _, a := range p.options.Avaliable {
-				if a == value[k] {
+				if p.options.equal(a, value[k]) {
 					ok = true
 					break
 				}

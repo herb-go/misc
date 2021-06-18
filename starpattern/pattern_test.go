@@ -168,7 +168,17 @@ func TestNotEmpty(t *testing.T) {
 }
 
 func TestEqual(t *testing.T) {
-	if equal([]rune("123"), []rune("1234")) {
+	if Star.equalRunes([]rune("abc"), []rune("abc1")) {
+		t.Fatal()
+	}
+	if Star.equalRunes([]rune("abc"), []rune("Abc")) {
+		t.Fatal()
+	}
+	opt := &Options{
+		Wildcard:   '*',
+		IgnoreCase: true,
+	}
+	if !opt.equalRunes([]rune("abc"), []rune("Abc")) {
 		t.Fatal()
 	}
 }
