@@ -34,6 +34,22 @@ func (d *Debounce) deleteTimer() {
 	d.timer = nil
 }
 
+//Reset Debounce timer
+//Return true if reset success
+func (d *Debounce) Reset() bool {
+	d.lock.Lock()
+	defer d.lock.Unlock()
+	if d.timer == nil {
+		return false
+	}
+	if d.MaxDuration > 0 {
+		d.deadline = time.Now().Add(d.MaxDuration)
+	} else {
+		d.deadline = time.Time{}
+	}
+	return d.timer.Reset(d.Duration)
+}
+
 //Exec call callback func.
 //Return if the callback is executed immediately
 func (d *Debounce) Exec() bool {
