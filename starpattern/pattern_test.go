@@ -26,7 +26,7 @@ func TestStar(t *testing.T) {
 	}
 
 	ok, found = New("abc").Find("abc")
-	if !ok || !equalFound(found, []string{}) {
+	if !ok || !equalFound(found, []string{"abc"}) {
 		t.Fatal(ok, found)
 	}
 	ok, found = New("abc").Find("ab")
@@ -38,7 +38,7 @@ func TestStar(t *testing.T) {
 		t.Fatal(ok, found)
 	}
 	ok, found = New("*abc").Find("1abc")
-	if !ok || !equalFound(found, []string{"1"}) {
+	if !ok || !equalFound(found, []string{"1abc", "1"}) {
 		t.Fatal(ok, found)
 	}
 	ok, found = New("*ab").Find("abc")
@@ -50,19 +50,19 @@ func TestStar(t *testing.T) {
 		t.Fatal(ok, found)
 	}
 	ok, found = New("abc*").Find("abc")
-	if !ok || !equalFound(found, []string{""}) {
+	if !ok || !equalFound(found, []string{"abc", ""}) {
 		t.Fatal(ok, found)
 	}
 	ok, found = New("abc*").Find("abc1")
-	if !ok || !equalFound(found, []string{"1"}) {
+	if !ok || !equalFound(found, []string{"abc1", "1"}) {
 		t.Fatal(ok, found)
 	}
 	ok, found = New("abc**").Find("abc1")
-	if !ok || !equalFound(found, []string{"", "1"}) {
+	if !ok || !equalFound(found, []string{"abc1", "", "1"}) {
 		t.Fatal(ok, found)
 	}
 	ok, found = New("abc*def*").Find("abcdef")
-	if !ok || !equalFound(found, []string{"", ""}) {
+	if !ok || !equalFound(found, []string{"abcdef", "", ""}) {
 		t.Fatal(ok, found)
 	}
 }
@@ -75,7 +75,7 @@ func TestException(t *testing.T) {
 		Exception: []rune("./"),
 	}
 	ok, found = opt.New("+.abc/123").Find("www.abc/123")
-	if !ok || !equalFound(found, []string{"www"}) {
+	if !ok || !equalFound(found, []string{"www.abc/123", "www"}) {
 		t.Fatal(ok, found)
 	}
 	ok, found = opt.New("+.abc/").Find("www.abc/123")
@@ -96,7 +96,7 @@ func TestAvaliable(t *testing.T) {
 		Avaliable: []rune("wabc123"),
 	}
 	ok, found = opt.New("+.abc/123").Find("www.abc/123")
-	if !ok || !equalFound(found, []string{"www"}) {
+	if !ok || !equalFound(found, []string{"www.abc/123", "www"}) {
 		t.Fatal(ok, found)
 	}
 	ok, found = opt.New("+.abc/").Find("www.abc/123")
@@ -126,7 +126,7 @@ func TestNotEmpty(t *testing.T) {
 	}
 
 	ok, found = opt.New("abc").Find("abc")
-	if !ok || !equalFound(found, []string{}) {
+	if !ok || !equalFound(found, []string{"abc"}) {
 		t.Fatal(ok, found)
 	}
 	ok, found = opt.New("abc").Find("ab")
@@ -138,7 +138,7 @@ func TestNotEmpty(t *testing.T) {
 		t.Fatal(ok, found)
 	}
 	ok, found = opt.New("*abc").Find("1abc")
-	if !ok || !equalFound(found, []string{"1"}) {
+	if !ok || !equalFound(found, []string{"1abc", "1"}) {
 		t.Fatal(ok, found)
 	}
 	ok, found = opt.New("*ab").Find("abc")
@@ -154,11 +154,11 @@ func TestNotEmpty(t *testing.T) {
 		t.Fatal(ok, found)
 	}
 	ok, found = opt.New("abc*").Find("abc1")
-	if !ok || !equalFound(found, []string{"1"}) {
+	if !ok || !equalFound(found, []string{"abc1", "1"}) {
 		t.Fatal(ok, found)
 	}
 	ok, found = opt.New("abc**").Find("abc1")
-	if !ok || !equalFound(found, []string{"", "1"}) {
+	if !ok || !equalFound(found, []string{"abc1", "", "1"}) {
 		t.Fatal(ok, found)
 	}
 	ok, found = opt.New("abc*def*").Find("abcdef")

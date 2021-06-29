@@ -169,7 +169,11 @@ func (p *Pattern) Find(value string) (bool, []string) {
 		return true, []string{value}
 	}
 	data := []rune(value)
-	return p.find(data, p.parts)
+	ok, result := p.find(data, p.parts)
+	if !ok {
+		return false, nil
+	}
+	return true, append([]string{value}, result...)
 }
 func (p *Pattern) Match(value string) bool {
 	ok, _ := p.Find(value)
