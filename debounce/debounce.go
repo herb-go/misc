@@ -19,6 +19,7 @@ type Debounce struct {
 	lock     sync.Mutex
 	deadline time.Time
 	timer    *time.Timer
+	d        chan int
 	//Callback function
 	Callback func()
 }
@@ -32,6 +33,20 @@ func (d *Debounce) deleteTimer() {
 	d.lock.Lock()
 	defer d.lock.Unlock()
 	d.timer = nil
+}
+
+//Discard Debounce timer
+//Return true if reset success
+func (d *Debounce) Discard() {
+	d.lock.Lock()
+	defer d.lock.Unlock()
+	if d.timer == nil {
+		return
+	}
+	d.timer.Stop()
+	dc := d.d
+	d.d = make(chan int)
+	close(dc)
 }
 
 //Reset Debounce timer
@@ -84,12 +99,15 @@ func (d *Debounce) Exec() bool {
 		}
 		t := d.getTimer()
 		if t != nil {
-			<-t.C
-			d.deleteTimer()
-			if !d.Leading {
-				d.Callback()
-			}
+			select {
 
+			case <-t.C:
+				d.deleteTimer()
+				if !d.Leading {
+					d.Callback()
+				}
+			case <-d.d:
+			}
 		}
 	}()
 	if d.Leading {
@@ -123,6 +141,7 @@ func New(duration time.Duration, callback func()) *Debounce {
 	d := &Debounce{}
 	d.Duration = duration
 	d.MaxDuration = time.Duration(DefaultMaxDurationMagnification) * duration
+	d.d = make(chan int)
 	d.Callback = callback
 	return d
 }
